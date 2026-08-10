@@ -14,103 +14,205 @@ WHITE  = "#CCD6F6"
 def inject_css() -> None:
     st.markdown("""
 <style>
-#MainMenu, footer, header {visibility: hidden;}
+
+/* ══ 1. Masquer le chrome Streamlit sans tuer la sidebar ══ */
+
+#MainMenu { visibility: hidden !important; }
+footer    { visibility: hidden !important; }
+
+[data-testid="stDeployButton"]   { display: none !important; }
+[data-testid="stToolbarActions"] { display: none !important; }
+[data-testid="stDecoration"]     { display: none !important; }
+[data-testid="stStatusWidget"]   { display: none !important; }
+
+/* Rendre le header transparent — SANS le cacher (le collapse button y est rattaché) */
+[data-testid="stHeader"] {
+    background-color: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* ══ 2. Boutons collapse sidebar — forcer la visibilité ══ */
+
+/* Bouton ← à l'intérieur de la sidebar */
+[data-testid="stSidebarCollapseButton"] {
+    display:    flex        !important;
+    visibility: visible     !important;
+    opacity:    1           !important;
+}
+/* Bouton > pour rouvrir quand sidebar est réduite */
+[data-testid="collapsedControl"] {
+    display:    flex        !important;
+    visibility: visible     !important;
+    opacity:    1           !important;
+    z-index:    999999      !important;
+    position:   fixed       !important;
+    top:        0.75rem     !important;
+    left:       0.5rem      !important;
+}
+
+/* ══ 3. Sidebar ══ */
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(170deg, #0d1f3c 0%, #0a1628 100%) !important;
+    border-right: 1px solid rgba(244,169,38,.12) !important;
+}
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1.2rem !important;
+}
+
+/* ══ 4. Layout principal ══ */
 
 .main .block-container {
-    padding-top: 1.2rem;
+    padding-top: 1.4rem;
     padding-left: 2rem;
     padding-right: 2rem;
     max-width: 1400px;
 }
 
-/* ── KPI cards ── */
-.kpi-grid {display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;}
+/* ══ 5. KPI cards ══ */
+
+.kpi-grid {
+    display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.1rem 0;
+}
 .kpi-card {
-    flex: 1; min-width: 160px;
+    flex: 1; min-width: 150px;
     background: #112240;
-    border: 1px solid rgba(244,169,38,.25);
+    border: 1px solid rgba(244,169,38,.2);
     border-radius: 12px;
-    padding: 1.1rem 1.2rem;
+    padding: 1rem 1.1rem;
     text-align: center;
+    transition: border-color .2s, transform .15s;
+}
+.kpi-card:hover {
+    border-color: rgba(244,169,38,.45);
+    transform: translateY(-2px);
 }
 .kpi-label {
-    color: #8892B0; font-size: .72rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem;
+    color: #8892B0; font-size: .69rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .09em; margin-bottom: .3rem;
 }
-.kpi-value {color: #F4A926; font-size: 2rem; font-weight: 700; line-height: 1.1;}
-.kpi-sub   {color: #8892B0; font-size: .7rem; margin-top: .2rem;}
+.kpi-value { color: #F4A926; font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+.kpi-sub   { color: #8892B0; font-size: .67rem; margin-top: .25rem; }
 
-/* ── Section divider ── */
+/* ══ 6. Section headers ══ */
+
 .sec-header {
     border-left: 3px solid #F4A926;
-    padding-left: .9rem; margin: 1.6rem 0 .8rem 0;
+    padding-left: .85rem;
+    margin: 1.5rem 0 .75rem 0;
 }
-.sec-header h3 {margin: 0; color: #CCD6F6; font-weight: 500;}
+.sec-header h3 { margin: 0; color: #CCD6F6; font-size: 1.05rem; font-weight: 600; }
+.sec-header p  { margin: .15rem 0 0 0; color: #8892B0; font-size: .8rem; line-height: 1.45; }
 
-/* ── Info / Insight boxes ── */
+/* ══ 7. Info boxes ══ */
+
 .insight-box {
-    background: rgba(100,255,218,.05);
-    border: 1px solid rgba(100,255,218,.2);
-    border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0;
+    background: rgba(100,255,218,.04);
+    border: 1px solid rgba(100,255,218,.18);
+    border-radius: 9px;
+    padding: 1rem 1.15rem;
+    margin: .9rem 0;
+    line-height: 1.6;
+    font-size: .85rem;
 }
 .warning-box {
-    background: rgba(244,169,38,.07);
-    border: 1px solid rgba(244,169,38,.25);
-    border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0;
+    background: rgba(244,169,38,.06);
+    border: 1px solid rgba(244,169,38,.22);
+    border-radius: 9px;
+    padding: 1rem 1.15rem;
+    margin: .9rem 0;
+    font-size: .85rem;
 }
 
-/* ── Scenario cards ── */
-.scenario-row {display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;}
+/* ══ 8. Scenario cards ══ */
+
+.scenario-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
 .scenario-card {
-    flex: 1; min-width: 180px;
+    flex: 1; min-width: 200px;
     background: #112240;
     border-radius: 12px;
-    padding: 1.2rem;
+    padding: 1.25rem 1.3rem;
     border-top: 3px solid #F4A926;
+    transition: transform .15s;
 }
-.scenario-card.s2 {border-top-color: #64FFDA;}
-.scenario-card.s3 {border-top-color: #FF6B6B;}
-.scenario-title {font-weight: 600; margin-bottom: .4rem; color: #CCD6F6;}
-.scenario-price {font-size: 1.8rem; font-weight: 700; color: #F4A926; line-height: 1.1;}
-.scenario-price.s2 {color: #64FFDA;}
-.scenario-price.s3 {color: #FF6B6B;}
-.scenario-desc  {color: #8892B0; font-size: .78rem; margin-top: .4rem; line-height: 1.4;}
+.scenario-card:hover { transform: translateY(-2px); }
+.scenario-card.s2  { border-top-color: #64FFDA; }
+.scenario-card.s3  { border-top-color: #FF6B6B; }
+.scenario-title {
+    font-weight: 600; font-size: .88rem;
+    margin-bottom: .4rem; color: #CCD6F6;
+}
+.scenario-price {
+    font-size: 2rem; font-weight: 700;
+    color: #F4A926; line-height: 1;
+    margin-bottom: .4rem;
+}
+.scenario-price.s2 { color: #64FFDA; }
+.scenario-price.s3 { color: #FF6B6B; }
+.scenario-desc { color: #8892B0; font-size: .78rem; line-height: 1.5; }
 
-/* ── Mode badge ── */
+/* ══ 9. View badges ══ */
+
 .badge-exec {
-    display: inline-block; padding: .2rem .7rem; border-radius: 20px;
-    font-size: .7rem; font-weight: 600; letter-spacing: .05em;
-    background: rgba(100,255,218,.1); color: #64FFDA;
-    border: 1px solid rgba(100,255,218,.3);
+    display: inline-block; padding: .18rem .65rem; border-radius: 20px;
+    font-size: .68rem; font-weight: 600; letter-spacing: .06em;
+    background: rgba(100,255,218,.08); color: #64FFDA;
+    border: 1px solid rgba(100,255,218,.28);
+    margin-bottom: .5rem;
 }
 .badge-tech {
-    display: inline-block; padding: .2rem .7rem; border-radius: 20px;
-    font-size: .7rem; font-weight: 600; letter-spacing: .05em;
-    background: rgba(244,169,38,.1); color: #F4A926;
-    border: 1px solid rgba(244,169,38,.3);
+    display: inline-block; padding: .18rem .65rem; border-radius: 20px;
+    font-size: .68rem; font-weight: 600; letter-spacing: .06em;
+    background: rgba(244,169,38,.08); color: #F4A926;
+    border: 1px solid rgba(244,169,38,.28);
+    margin-bottom: .5rem;
 }
 
-/* ── Streamlit element tweaks ── */
+/* ══ 10. Streamlit widget overrides ══ */
+
 div[data-testid="stMetric"] {
     background: #112240;
     border-radius: 10px;
     padding: .8rem 1rem;
-    border: 1px solid rgba(244,169,38,.15);
+    border: 1px solid rgba(244,169,38,.12);
+}
+div[data-testid="stMetric"]:hover {
+    border-color: rgba(244,169,38,.3);
 }
 div[data-testid="stTabs"] button[data-baseweb="tab"] {
-    font-size: .85rem;
+    font-size: .84rem;
+    padding-bottom: .6rem;
 }
+div[data-testid="stDataFrame"] {
+    border-radius: 8px;
+    overflow: hidden;
+}
+div[data-testid="stRadio"] > label {
+    font-size: .82rem !important;
+}
+div[data-testid="stRadio"] {
+    gap: .3rem;
+}
+
+/* ══ 11. Scrollbar custom ══ */
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0A1628; }
+::-webkit-scrollbar-thumb { background: rgba(244,169,38,.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(244,169,38,.55); }
+
 </style>
 """, unsafe_allow_html=True)
 
 
 def kpi_card(label: str, value: str, sub: str = "") -> str:
     return f"""
-    <div class="kpi-card">
-        <div class="kpi-label">{label}</div>
-        <div class="kpi-value">{value}</div>
-        {'<div class="kpi-sub">' + sub + '</div>' if sub else ''}
-    </div>"""
+<div class="kpi-card">
+    <div class="kpi-label">{label}</div>
+    <div class="kpi-value">{value}</div>
+    {'<div class="kpi-sub">' + sub + '</div>' if sub else ''}
+</div>"""
 
 
 def kpi_row(cards: list[tuple]) -> None:
@@ -123,7 +225,7 @@ def kpi_row(cards: list[tuple]) -> None:
 
 
 def section_header(title: str, subtitle: str = "") -> None:
-    sub_html = f"<p style='margin:.2rem 0 0 0; color:#8892B0; font-size:.85rem;'>{subtitle}</p>" if subtitle else ""
+    sub_html = f"<p>{subtitle}</p>" if subtitle else ""
     st.markdown(f"""
 <div class="sec-header">
   <h3>{title}</h3>
@@ -143,5 +245,5 @@ def no_data_msg(filename: str) -> None:
     st.warning(
         f"Fichier `{filename}` introuvable dans `data/`. "
         "Lance d'abord `export_for_streamlit.R` depuis R pour générer les données.",
-        icon="⚠️"
+        icon="⚠️",
     )

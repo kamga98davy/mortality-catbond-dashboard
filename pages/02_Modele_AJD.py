@@ -2,12 +2,13 @@
 import streamlit as st
 
 from utils.styles import inject_css, section_header, insight_box
+from utils.sidebar import render_sidebar
 from utils.data_loader import load_params_postC, load_params_preC, corr_instantanee
 
 st.set_page_config(page_title="Modèle AJD", page_icon="🔬", layout="wide")
 inject_css()
 
-IS_EXEC = st.session_state.get("view", "Executive") == "Executive"
+IS_EXEC = render_sidebar() == "Executive"
 badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
 st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Modèle AJD bivarié")
@@ -182,11 +183,9 @@ c^*\,\Delta\,\mathrm{PRF}_{t_k}
 
         params = load_params_postC()
         if params:
-            key_map = dict(zip(params_info["Code R"],
-                               ["m1","d1","sigma1","m2","d2","sigma2","rho1",
-                                "lambda","v1","v2","phi1","phi2","rho2"]))
-            params_info["Valeur (post-COVID)"] = params_info["Code R"].map(
-                lambda k: f"{params.get(k, params.get(k.replace('sigma', 's').replace('lambda', 'lam'), '—')):.5f}"
-            )
+            def _fmt_param(k: str) -> str:
+                v = params.get(k)
+                return f"{v:.5f}" if v is not None else "—"
+            params_info["Valeur (post-COVID)"] = params_info["Code R"].map(_fmt_param)
 
         st.dataframe(params_info, hide_index=True, use_container_width=True)

@@ -121,7 +121,7 @@ def load_mpr() -> dict | None:
 
 # ── CSV loaders ────────────────────────────────────────────────────────────────
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=2)
 def load_mcmc_summary(period: str = "postC") -> pd.DataFrame | None:
     path = DATA_DIR / f"mcmc_summary_{period}.csv"
     if not path.exists():
@@ -129,7 +129,7 @@ def load_mcmc_summary(period: str = "postC") -> pd.DataFrame | None:
     return pd.read_csv(path)
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=2)
 def load_mcmc_chains(period: str = "postC") -> pd.DataFrame | None:
     path = DATA_DIR / f"mcmc_chains_{period}.csv"
     if not path.exists():

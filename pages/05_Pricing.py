@@ -3,12 +3,13 @@ import streamlit as st
 import pandas as pd
 
 from utils.styles import inject_css, section_header, insight_box, no_data_msg, warning_box
+from utils.sidebar import render_sidebar
 from utils.data_loader import load_mpr, load_seuils, load_etats
 
 st.set_page_config(page_title="Pricing & Scénarios", page_icon="💰", layout="wide")
 inject_css()
 
-IS_EXEC = st.session_state.get("view", "Executive") == "Executive"
+IS_EXEC = render_sidebar() == "Executive"
 badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
 st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Pricing & Scénarios")
