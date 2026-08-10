@@ -343,22 +343,24 @@ else:
     ])
 
     st.markdown("---")
-    col1, col2 = st.columns([3, 2], gap="large")
 
-    with col1:
-        section_header("Pipeline méthodologique")
-        for i, (step, desc) in enumerate([
-            ("Données",      "Mortalité hebdomadaire Statbel 2013–2024 · EURIBOR 3M"),
-            ("GLM Poisson",  "Décès attendus E[D_{t,w}] avec harmoniques saisonnières (éq. 4.1)"),
-            ("Surmortalité", "μₜ = (D_obs − E[D]) / pop × 100 — résidu standardisé"),
-            ("AJD sous P",   "Bivarié (rₜ, μₜ) — 13 paramètres θ — SDE éq. 2.8"),
-            ("MCMC MH",      "30 000 itérations · 2 fenêtres : pré-COVID & post-COVID"),
-            ("Mesure Q",     "MPR ζ = (γ₁,γ₂;κ₁,κ₂;χ) · changement de mesure éq. 2.11"),
-            ("Monte Carlo",  "Algorithme A.5 exact · 100 000 trajectoires · μ* = max μₜ"),
-            ("Seuils",       "Inversion P(μ*>a)=1,16% et P(μ*>b)=0,74% → a_BE, b_BE"),
-            ("Calibration ζ","Moindres carrés sur 10 spreads Vita Capital IV D-5 (2011–2015)"),
-            ("Pricing",      "P₀ = E^Q[coupons + K·PRF_T] actualisés → S1/S2/S3"),
-        ], start=1):
+    # Pipeline : liste compacte pleine largeur
+    section_header("Pipeline méthodologique")
+    pipe_cols = st.columns(2, gap="large")
+    pipeline = [
+        ("Données",      "Mortalité hebdomadaire Statbel 2013–2024 · EURIBOR 3M"),
+        ("GLM Poisson",  "Décès attendus E[D_{t,w}] avec harmoniques saisonnières (éq. 4.1)"),
+        ("Surmortalité", "μₜ = (D_obs − E[D]) / pop × 100 — résidu standardisé"),
+        ("AJD sous P",   "Bivarié (rₜ, μₜ) — 13 paramètres θ — SDE éq. 2.8"),
+        ("MCMC MH",      "30 000 itérations · 2 fenêtres : pré-COVID & post-COVID"),
+        ("Mesure Q",     "MPR ζ = (γ₁,γ₂;κ₁,κ₂;χ) · changement de mesure éq. 2.11"),
+        ("Monte Carlo",  "Algorithme A.5 exact · 100 000 trajectoires · μ* = max μₜ"),
+        ("Seuils",       "Inversion P(μ*>a)=1,16% et P(μ*>b)=0,74% → a_BE, b_BE"),
+        ("Calibration ζ","Moindres carrés sur 10 spreads Vita Capital IV D-5 (2011–2015)"),
+        ("Pricing",      "P₀ = E^Q[coupons + K·PRF_T] actualisés → S1/S2/S3"),
+    ]
+    for i, (step, desc) in enumerate(pipeline, start=1):
+        with pipe_cols[0 if i <= 5 else 1]:
             st.markdown(f"""
 <div style='display:flex;gap:.8rem;margin:.35rem 0;align-items:flex-start;'>
   <span style='color:#F4A926;font-weight:700;font-size:.8rem;
@@ -369,19 +371,37 @@ else:
   </div>
 </div>""", unsafe_allow_html=True)
 
-    with col2:
-        section_header("Modèle AJD (éq. 2.8)")
+    st.markdown("<div style='height:.5rem'></div>", unsafe_allow_html=True)
+
+    # Équations : pleine largeur, côte à côte
+    eq1, eq2 = st.columns(2, gap="large")
+
+    with eq1:
+        section_header("Modèle AJD bivarié (éq. 2.8)")
         st.latex(r"""
 \begin{cases}
-dr_t = (m_1 - d_1 r_t)dt + \sigma_1 dW_{1,t} + d\!\sum X_{1,i}\\[6pt]
-d\mu_t = (m_2 - d_2\mu_t)dt + \sigma_2(\rho_1 dW_{1,t}\\
-\quad + \sqrt{1-\rho_1^2}\,dW_{2,t}) + d\!\sum X_{2,i}
+dr_t = (m_1 - d_1\,r_t)\,dt + \sigma_1\,dW_{1,t}
+       + d\!\displaystyle\sum_{i=1}^{N_t} X_{1,i}\\[10pt]
+d\mu_t = (m_2 - d_2\,\mu_t)\,dt
+         + \sigma_2\!\left(\rho_1\,dW_{1,t}
+         + \sqrt{1-\rho_1^2}\,dW_{2,t}\right)
+         + d\!\displaystyle\sum_{i=1}^{N_t} X_{2,i}
 \end{cases}
 """)
-        section_header("Pricing (éq. 3.1)")
+
+    with eq2:
+        section_header("Formule de pricing (éq. 3.1)")
         st.latex(r"""
-P_0 = \mathbb{E}^Q\!\left[\sum_k e^{-\int_0^{t_k}r_s ds}
-c^*\Delta\,\text{PRF}_{t_k} + e^{-\int_0^T r_s ds} K\,\text{PRF}_T\right]
+P_0 = \mathbb{E}^Q\!\left[
+  \sum_{k=1}^{T/\Delta}
+    e^{-\int_0^{t_k}\!r_s\,ds}\,c^*\Delta\,\mathrm{PRF}_{t_k}
+  \;+\; e^{-\int_0^{T}\!r_s\,ds}\,K\,\mathrm{PRF}_T
+\right]
+""")
+        st.latex(r"""
+\mathrm{PRF}_{t_k} = 1 -
+\frac{(\mu^* - a)_+ - (\mu^* - b)_+}{b - a},\quad
+\mu^* = \max_{0\le t\le T}\mu_t
 """)
 
     st.markdown("---")
