@@ -48,7 +48,7 @@ def _placeholder_bar() -> None:
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
         font=dict(color="#CCD6F6"),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key="sens_placeholder_exec")
     st.caption("⚠️ Valeurs indicatives — remplacées par les résultats réels après export R.")
 
 # ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
@@ -69,7 +69,7 @@ if IS_EXEC:
             summary["param_label"] = summary["param"].map(
                 lambda p: PARAM_META.get(p, (p, p, "#F4A926"))[0]
             )
-            st.plotly_chart(sensitivity_bar(summary), use_container_width=True)
+            st.plotly_chart(sensitivity_bar(summary), use_container_width=True, key="sens_bar_exec")
         else:
             _placeholder_bar()
 
@@ -189,7 +189,7 @@ L'export inclut les résultats précalculés de la section 5.3 (Rmd).
                         hovermode="x unified",
                         legend=dict(bgcolor="rgba(0,0,0,0)"),
                     )
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=True, key="sens_interactive_tech")
 
         st.markdown("---")
         section_header("Méthode (Section 5.3 de Li et al.)")

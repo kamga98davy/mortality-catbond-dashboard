@@ -33,7 +33,7 @@ if IS_EXEC:
     section_header("La mortalité belge en chiffres",
                    "Évolution hebdomadaire des décès 2013–2024")
 
-    st.plotly_chart(deaths_chart(df), use_container_width=True)
+    st.plotly_chart(deaths_chart(df), use_container_width=True, key="d1_deaths_exec")
 
     pre  = df[df["periode"] == "Pré-COVID"]
     post = df[df["periode"] == "Post-COVID"]
@@ -55,7 +55,7 @@ if IS_EXEC:
 
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.plotly_chart(excess_mortality_chart(df), use_container_width=True)
+        st.plotly_chart(excess_mortality_chart(df), use_container_width=True, key="d1_mu_exec")
     with col2:
         insight_box("""
 <b>📌 Lecture du graphique</b><br><br>
@@ -83,12 +83,12 @@ else:
     with tab1:
         col1, col2 = st.columns(2)
         with col1:
-            st.plotly_chart(deaths_chart(df, show_mean=True), use_container_width=True)
+            st.plotly_chart(deaths_chart(df, show_mean=True), use_container_width=True, key="d1_deaths_t1")
         with col2:
-            st.plotly_chart(excess_mortality_chart(df), use_container_width=True)
+            st.plotly_chart(excess_mortality_chart(df), use_container_width=True, key="d1_mu_t1")
 
         if df_taux is not None:
-            st.plotly_chart(joint_chart(df, df_taux), use_container_width=True)
+            st.plotly_chart(joint_chart(df, df_taux), use_container_width=True, key="d1_joint_t1")
         else:
             no_data_msg("taux_journalier.xlsx")
 
@@ -104,17 +104,17 @@ else:
             f"**Corrélation décès observés / attendus :** "
             f"`{df['deces'].corr(df['deces_attendus']):.4f}`"
         )
-        st.plotly_chart(glm_fit_chart(df), use_container_width=True)
+        st.plotly_chart(glm_fit_chart(df), use_container_width=True, key="d1_glm_t2")
 
         st.markdown("---")
         section_header("Surmortalité μₜ",
                        "μₜ = (d_t − E[d_t]) / e_t × 100  (équation 4.1)")
-        st.plotly_chart(excess_mortality_chart(df), use_container_width=True)
+        st.plotly_chart(excess_mortality_chart(df), use_container_width=True, key="d1_mu_t2")
 
         section_header("Distribution de μₜ par période")
         col1, col2 = st.columns([3, 2])
         with col1:
-            st.plotly_chart(boxplot_covid(df), use_container_width=True)
+            st.plotly_chart(boxplot_covid(df), use_container_width=True, key="d1_box_t2")
         with col2:
             from scipy import stats as scipy_stats
             pre  = df[df["periode"] == "Pré-COVID"]["mu_t"].dropna()
@@ -167,7 +167,7 @@ else:
             paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
             font=dict(color="#CCD6F6"),
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, key="d1_hist_t3")
 
     with tab4:
         if df_taux is None:
@@ -175,7 +175,7 @@ else:
         else:
             section_header("EURIBOR 3M hebdomadaire",
                            "Proxy du taux sans risque rₜ — Source : Banque nationale de Belgique")
-            st.plotly_chart(interest_rate_chart(df_taux), use_container_width=True)
+            st.plotly_chart(interest_rate_chart(df_taux), use_container_width=True, key="d1_rate_t4")
 
             col1, col2, col3 = st.columns(3)
             col1.metric("Taux moyen", f"{df_taux['taux_clot'].mean():.3f}%")

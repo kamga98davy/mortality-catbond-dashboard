@@ -39,7 +39,7 @@ def _dummy_exec():
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
         font=dict(color="#CCD6F6"),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key="mc_dummy_exec")
     st.caption("⚠️ Graphique illustratif — remplacé par les vraies données après export R.")
 
 
@@ -55,6 +55,7 @@ if IS_EXEC:
             st.plotly_chart(
                 exceedance_chart(df_exc, seuils, executive=True),
                 use_container_width=True,
+                key="mc_exc_exec",
             )
         else:
             st.info(
@@ -127,6 +128,7 @@ $$a^{BE} = F_{\mu^*}^{-1}(1 - 0{,}0116), \qquad
             st.plotly_chart(
                 exceedance_chart(df_exc, seuils, executive=False),
                 use_container_width=True,
+                key="mc_exc_tech",
             )
         else:
             no_data_msg("exceedance.csv / seuils.json")
@@ -255,5 +257,5 @@ def _dummy_exec_bottom():  # kept for reference, real one moved above
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
         font=dict(color="#CCD6F6"),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key="mc_dummy_bottom")
     st.caption("⚠️ Graphique illustratif — remplacé par les vraies données après export R.")

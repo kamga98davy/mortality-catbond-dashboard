@@ -170,7 +170,8 @@ else:
                 if param in chains.columns:
                     with cols[i % 2]:
                         st.plotly_chart(trace_plot(chains, param, label),
-                                        use_container_width=True)
+                                        use_container_width=True,
+                                        key=f"mcmc_trace_{param}")
         else:
             no_data_msg("mcmc_chains_postC.csv")
 
@@ -196,7 +197,7 @@ else:
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
                 font=dict(color="#CCD6F6"),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key="mcmc_ess_bar")
 
             warning_box("""
 <b>Rappel :</b> ESS &gt; 100 est considéré acceptable pour l'inférence.
