@@ -32,23 +32,25 @@ footer    { visibility: hidden !important; }
     box-shadow: none !important;
 }
 
-/* ══ 2. Boutons collapse sidebar — forcer la visibilité ══ */
+/* ══ 2. Boutons collapse sidebar — visibilité SANS override de position ══ */
 
-/* Bouton ← à l'intérieur de la sidebar */
-[data-testid="stSidebarCollapseButton"] {
-    display:    flex        !important;
-    visibility: visible     !important;
-    opacity:    1           !important;
+/* Bouton ← fermer la sidebar */
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapseButton"] button {
+    display:        flex    !important;
+    visibility:     visible !important;
+    opacity:        1       !important;
+    pointer-events: auto    !important;
 }
-/* Bouton > pour rouvrir quand sidebar est réduite */
-[data-testid="collapsedControl"] {
-    display:    flex        !important;
-    visibility: visible     !important;
-    opacity:    1           !important;
-    z-index:    999999      !important;
-    position:   fixed       !important;
-    top:        0.75rem     !important;
-    left:       0.5rem      !important;
+
+/* Bouton > rouvrir la sidebar — NE PAS forcer position, laisser Streamlit placer */
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] button {
+    display:        flex    !important;
+    visibility:     visible !important;
+    opacity:        1       !important;
+    pointer-events: auto    !important;
+    cursor:         pointer !important;
 }
 
 /* ══ 3. Sidebar ══ */
