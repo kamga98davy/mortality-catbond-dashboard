@@ -14,13 +14,10 @@ from utils.charts import (
 
 st.set_page_config(page_title="Données", page_icon="📊", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Données — Mortalité belge & Taux d'intérêt")
 
-# ── Load data ──────────────────────────────────────────────────────────────────
 with st.spinner("Chargement des données et calibration GLM…"):
     df = load_mortality()
     df_taux = load_interest_rate()
@@ -29,8 +26,10 @@ if df is None:
     no_data_msg("mortalite_final.xlsx")
     st.stop()
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     section_header("La mortalité belge en chiffres",
                    "Évolution hebdomadaire des décès 2013–2024")
 
@@ -75,13 +74,13 @@ précédent dans la période observée.
 | Max μₜ | `{pre['mu_t'].max():.4f}` | `{post['mu_t'].max():.4f}` |
 """)
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2, tab3, tab4 = st.tabs(
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2, sub3, sub4 = st.tabs(
         ["📈 Séries temporelles", "🔬 GLM Poisson & μₜ",
          "📊 Statistiques", "💹 Taux d'intérêt"])
 
-    with tab1:
+    with sub1:
         col1, col2 = st.columns(2)
         with col1:
             st.plotly_chart(deaths_chart(df, show_mean=True), use_container_width=True, key="d1_deaths_t1")
@@ -93,7 +92,7 @@ else:
         else:
             no_data_msg("taux_journalier.xlsx")
 
-    with tab2:
+    with sub2:
         section_header("GLM Poisson — Décès attendus",
                        "Équation (Li et al. éq. 4.1) : E[D_{t,w}] = exp(log e_{t,w} + β₀ + β₁t + Σ harmoniques)")
 
@@ -135,7 +134,7 @@ else:
                 icon="📐"
             )
 
-    with tab3:
+    with sub3:
         section_header("Statistiques descriptives de μₜ")
         pre  = df[df["periode"] == "Pré-COVID"]["mu_t"].dropna()
         post = df[df["periode"] == "Post-COVID"]["mu_t"].dropna()
@@ -170,7 +169,7 @@ else:
         )
         st.plotly_chart(fig, use_container_width=True, key="d1_hist_t3")
 
-    with tab4:
+    with sub4:
         if df_taux is None:
             no_data_msg("taux_journalier.xlsx")
         else:

@@ -13,10 +13,8 @@ from utils.charts import sensitivity_bar, sensitivity_line
 
 st.set_page_config(page_title="Sensibilité MPR", page_icon="🎯", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Analyse de sensibilité — Primes de risque MPR")
 
 sens_df = load_sensitivity()
@@ -32,7 +30,6 @@ PARAM_META = {
 
 
 def _placeholder_bar() -> None:
-    """Placeholder when no sensitivity data is available."""
     import pandas as pd
     dummy = pd.DataFrame({
         "param_label": ["γ₁", "γ₂", "κ₁", "κ₂", "χ"],
@@ -52,8 +49,11 @@ def _placeholder_bar() -> None:
     st.plotly_chart(fig, use_container_width=True, key="sens_placeholder_exec")
     st.caption("⚠️ Valeurs indicatives — remplacées par les résultats réels après export R.")
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     col1, col2 = st.columns([3, 2], gap="large")
 
     with col1:
@@ -94,11 +94,11 @@ est déterminant pour le prix du bond.**
   ils affectent le risque continu, pas les chocs extrêmes.
 """)
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2 = st.tabs(["🎛️ Explorateur interactif", "📊 Tableau de synthèse"])
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2 = st.tabs(["🎛️ Explorateur interactif", "📊 Tableau de synthèse"])
 
-    with tab1:
+    with sub1:
         section_header("Sensibilité interactive du prix P₀",
                        "Sélectionne une composante MPR et explore son impact")
 
@@ -132,7 +132,6 @@ L'export inclut les résultats précalculés de la section 5.3 (Rmd).
 
                 col_slider, col_chart = st.columns([1, 3])
                 with col_slider:
-                    pct_range = 0.20
                     lo = float(df_p["param_value"].min())
                     hi = float(df_p["param_value"].max())
                     selected = st.slider(
@@ -151,14 +150,12 @@ L'export inclut les résultats précalculés de la section 5.3 (Rmd).
 
                 with col_chart:
                     fig = go.Figure()
-                    # Pre-computed curve
                     fig.add_trace(go.Scatter(
                         x=df_p["param_value"], y=df_p["price"],
                         mode="lines+markers", name=f"P₀({symbol})",
                         line=dict(color=color, width=2),
                         marker=dict(size=5, color=color),
                     ))
-                    # Smooth interpolation
                     x_fine = np.linspace(lo, hi, 200)
                     y_fine = interp_fn(x_fine)
                     fig.add_trace(go.Scatter(
@@ -166,13 +163,11 @@ L'export inclut les résultats précalculés de la section 5.3 (Rmd).
                         line=dict(color=color, width=1, dash="dot"),
                         showlegend=False,
                     ))
-                    # Selected point
                     fig.add_trace(go.Scatter(
                         x=[selected], y=[est_price], mode="markers",
                         marker=dict(size=12, color="#FFFFFF", symbol="star"),
-                        name=f"Valeur sélectionnée",
+                        name="Valeur sélectionnée",
                     ))
-                    # Reference lines
                     fig.add_vline(x=ref_val,
                                   line=dict(color="#64FFDA", dash="dash", width=1.5),
                                   annotation_text=f"Réf. = {ref_val:.4f}",
@@ -207,7 +202,7 @@ $$P_0(\\zeta_j) = \\hat{\\mathbb{E}}^Q\\!\\left[\\sum_{k} e^{-\\int_0^{t_k} r_s 
 $$\\text{Elasticité}(\\chi) = \\frac{\\Delta P_0 / P_0}{\\Delta \\chi / |\\chi|}$$
 """)
 
-    with tab2:
+    with sub2:
         section_header("Tableau de synthèse des amplitudes",
                        "Analogue Table 5.x — variation ±20% de chaque composante MPR")
 
@@ -236,5 +231,3 @@ $$\\text{Elasticité}(\\chi) = \\frac{\\Delta P_0 / P_0}{\\Delta \\chi / |\\chi|
                 )
         else:
             no_data_msg("sensitivity.csv")
-
-

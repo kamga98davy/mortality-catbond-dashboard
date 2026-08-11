@@ -8,21 +8,20 @@ from utils.data_loader import load_mpr, load_seuils, load_etats
 
 st.set_page_config(page_title="Pricing & Scénarios", page_icon="💰", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Pricing & Scénarios")
 
 mpr    = load_mpr()
 seuils = load_seuils()
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     section_header("Les trois scénarios du bond belge",
                    "Quel prix juste pour le bond selon le contexte de risque ?")
 
-    # Scenario cards
     p_s1 = mpr.get("P0_S1", 100.0) if mpr else 100.0
     p_s2 = mpr.get("P0_S2", "N/A")   if mpr else "N/A"
     p_s3 = mpr.get("P0_S3", 100.0) if mpr else 100.0
@@ -105,12 +104,12 @@ if IS_EXEC:
    qu'il ne le croit — le vecteur ζ_S3 révèle cette asymétrie.
 """)
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2, tab3, tab4 = st.tabs(
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2, sub3, sub4 = st.tabs(
         ["💰 Formule de pricing", "🎯 Vecteur MPR ζ", "📋 États de calibration", "📊 Scénarios S1/S2/S3"])
 
-    with tab1:
+    with sub1:
         section_header("Formule de pricing — Équation (3.1)")
         st.latex(r"""
 P_0 = \mathbb{E}^Q\!\left[
@@ -143,7 +142,7 @@ P_0 = \mathbb{E}^Q\!\left[
 **Estimation Monte Carlo :** $N = 10\\,000$ trajectoires sous $Q$
 """)
 
-    with tab2:
+    with sub2:
         section_header("Calibration du vecteur MPR ζ",
                        "Moindres carrés sur 10 spreads trimestriels Vita Capital IV D-5 (2011–2015)")
         st.latex(r"""
@@ -179,7 +178,7 @@ P_0 = \mathbb{E}^Q\!\left[
         else:
             no_data_msg("mpr.json")
 
-    with tab3:
+    with sub3:
         section_header("États trimestriels de calibration",
                        "Vita Capital IV D-5 — 10 observations 2011–2015 (Lane Financial LLC)")
         etats = load_etats()
@@ -196,7 +195,7 @@ Le tableau contient 10 observations trimestrielles :
 - `tenor_restant` : durée résiduelle du bond
 """)
 
-    with tab4:
+    with sub4:
         section_header("Comparaison des scénarios S1 / S2 / S3",
                        "Analogue Table 5.1 de Li et al. (2023)")
         if mpr and seuils:

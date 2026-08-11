@@ -7,14 +7,14 @@ from utils.data_loader import load_params_postC, load_params_preC, corr_instanta
 
 st.set_page_config(page_title="Modèle AJD", page_icon="🔬", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Modèle AJD bivarié")
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     col1, col2 = st.columns([3, 2], gap="large")
 
     with col1:
@@ -75,12 +75,12 @@ La fréquence des sauts λ a fortement augmenté dans les estimations post-COVID
 </div>
 """, unsafe_allow_html=True)
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2, tab3 = st.tabs(
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2, sub3 = st.tabs(
         ["📐 Spécification mathématique", "🔄 Mesure risque-neutre Q", "📊 Paramètres"])
 
-    with tab1:
+    with sub1:
         section_header("Processus AJD bivarié sous P",
                        "Équation (2.8) de Li, Liu, Tang & Yuan (2023)")
         st.latex(r"""
@@ -121,7 +121,7 @@ La corrélation provient de **deux contributions** :
             rho = corr_instantanee(params)
             st.success(f"**Corrélation instantanée estimée (post-COVID) :** `{rho:.4f}`")
 
-    with tab2:
+    with sub2:
         section_header("Changement de mesure P → Q",
                        "Équation (2.11) — Market Prices of Risk (MPR) ζ = (γ₁, γ₂; κ₁, κ₂; χ)")
         st.latex(r"""
@@ -161,7 +161,7 @@ c^*\,\Delta\,\mathrm{PRF}_{t_k}
 \mu^* = \max_{0 \leq t \leq T} \mu_t
 """)
 
-    with tab3:
+    with sub3:
         section_header("Paramètres du modèle",
                        "13 paramètres sous P — vecteur θ")
         import pandas as pd

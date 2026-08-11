@@ -9,10 +9,8 @@ from utils.charts import exceedance_chart
 
 st.set_page_config(page_title="Monte Carlo", page_icon="📈", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Simulation Monte Carlo — Courbe d'exceedance")
 
 seuils = load_seuils()
@@ -20,7 +18,7 @@ df_exc = load_exceedance()
 
 
 def _dummy_exec():
-    """Show a placeholder exceedance chart with synthetic data when data unavailable."""
+    """Placeholder exceedance chart when data unavailable."""
     import numpy as np
     s_range = np.linspace(0.01, 0.06, 300)
     prob = 2.5 * np.exp(-60 * s_range)
@@ -29,9 +27,9 @@ def _dummy_exec():
         x=s_range, y=prob, mode="lines",
         line=dict(color="#F4A926", width=2), name="P(μ* > s) [simulation]",
     ))
-    a_demo, b_demo, p_a, p_b = 0.025, 0.038, 1.16, 0.74
-    fig.add_hline(y=p_a, line=dict(color="#4FC3F7", dash="dash"))
-    fig.add_hline(y=p_b, line=dict(color="#FF6B6B", dash="dash"))
+    a_demo, b_demo = 0.025, 0.038
+    fig.add_hline(y=1.16, line=dict(color="#4FC3F7", dash="dash"))
+    fig.add_hline(y=0.74, line=dict(color="#FF6B6B", dash="dash"))
     fig.add_vline(x=a_demo, line=dict(color="#4FC3F7", dash="dot"))
     fig.add_vline(x=b_demo, line=dict(color="#FF6B6B", dash="dot"))
     fig.update_layout(
@@ -44,8 +42,10 @@ def _dummy_exec():
     st.caption("⚠️ Graphique illustratif — remplacé par les vraies données après export R.")
 
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     col1, col2 = st.columns([3, 2], gap="large")
 
     with col1:
@@ -108,12 +108,12 @@ if IS_EXEC:
 | Perte attendue | **≈ 0,92 %** |
 """)
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2, tab3 = st.tabs(
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2, sub3 = st.tabs(
         ["📈 Courbe d'exceedance", "⚙️ Algorithme A.5", "📐 Dérivation des seuils"])
 
-    with tab1:
+    with sub1:
         section_header("Probabilité d'exceedance de μ*",
                        "Analogue Figure 5.3 de Li et al. (2023)")
         st.markdown(r"""
@@ -148,7 +148,7 @@ source("export_for_streamlit.R")
             col2.metric("b_BE (exhaustion)", f"{b_BE:.6f}")
             col3.metric("N simulations", "100 000")
 
-    with tab2:
+    with sub2:
         section_header("Algorithme de simulation exacte (Appendice A.5)",
                        "Simulation des trajectoires (rₜ, μₜ) sous P")
         st.markdown("""
@@ -194,7 +194,7 @@ Les résultats sont sauvegardés dans <code>seuils_BE.rds</code> puis exportés
 en <code>exceedance.csv</code> via le script R.
 """)
 
-    with tab3:
+    with sub3:
         section_header("Dérivation des seuils a_BE et b_BE",
                        "Scénarios S1 (post-COVID) et S3 (pré-COVID)")
         st.markdown("""
@@ -237,26 +237,3 @@ la surmortalité extrême est devenue plus probable après la pandémie.
 Un émetteur qui conserverait les seuils pré-COVID sous-estimerait le risque réel —
 c'est précisément le scénario S3.
 """)
-
-
-def _dummy_exec_bottom():  # kept for reference, real one moved above
-    s_range = []
-    prob = 2.5 * np.exp(-60 * s_range)
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=s_range, y=prob, mode="lines",
-        line=dict(color="#F4A926", width=2), name="P(μ* > s) [simulation]",
-    ))
-    a_demo, b_demo, p_a, p_b = 0.025, 0.038, 1.16, 0.74
-    fig.add_hline(y=p_a, line=dict(color="#4FC3F7", dash="dash"))
-    fig.add_hline(y=p_b, line=dict(color="#FF6B6B", dash="dash"))
-    fig.add_vline(x=a_demo, line=dict(color="#4FC3F7", dash="dot"))
-    fig.add_vline(x=b_demo, line=dict(color="#FF6B6B", dash="dot"))
-    fig.update_layout(
-        title="Courbe d'exceedance [aperçu — données simulées à titre illustratif]",
-        xaxis_title="Seuil s", yaxis_title="P(μ* > s)  [%]",
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#0A1628",
-        font=dict(color="#CCD6F6"),
-    )
-    st.plotly_chart(fig, use_container_width=True, key="mc_dummy_bottom")
-    st.caption("⚠️ Graphique illustratif — remplacé par les vraies données après export R.")

@@ -12,14 +12,14 @@ from utils.charts import trace_plot
 
 st.set_page_config(page_title="Calibration MCMC", page_icon="⚙️", layout="wide")
 inject_css()
+render_sidebar()
 
-IS_EXEC = render_sidebar() == "Executive"
-badge = '<span class="badge-exec">Executive</span>' if IS_EXEC else '<span class="badge-tech">Technique</span>'
-st.markdown(f"{badge}", unsafe_allow_html=True)
 st.title("Calibration MCMC — Metropolis-Hastings")
 
-# ── EXECUTIVE VIEW ─────────────────────────────────────────────────────────────
-if IS_EXEC:
+tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+
+# ── COMMERCIAL ─────────────────────────────────────────────────────────────────
+with tab_comm:
     col1, col2 = st.columns([3, 2], gap="large")
 
     with col1:
@@ -89,13 +89,13 @@ de mortalité belge. Le modèle le capte clairement.
     else:
         no_data_msg("params_postC.json / params_preC.json")
 
-# ── TECHNICAL VIEW ─────────────────────────────────────────────────────────────
-else:
-    tab1, tab2, tab3, tab4 = st.tabs(
+# ── TECHNIQUE ──────────────────────────────────────────────────────────────────
+with tab_tech:
+    sub1, sub2, sub3, sub4 = st.tabs(
         ["📊 Résultats post-COVID", "📊 Résultats pré-COVID",
          "📈 Traceplots (échantillon)", "🔢 Diagnostics"])
 
-    with tab1:
+    with sub1:
         section_header("Paramètres estimés — Données 2017–2022",
                        "Médiane a posteriori avec intervalles de crédibilité 95%")
         mcmc_post = load_mcmc_summary("postC")
@@ -115,7 +115,7 @@ else:
         else:
             no_data_msg("mcmc_summary_postC.csv")
 
-    with tab2:
+    with sub2:
         section_header("Paramètres estimés — Données pré-COVID 2017–2019",
                        "Analogue Table 4.2 de Li et al. (2023)")
         mcmc_pre = load_mcmc_summary("preC")
@@ -156,7 +156,7 @@ else:
             if rows:
                 st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
 
-    with tab3:
+    with sub3:
         chains = load_mcmc_chains("postC")
         if chains is not None:
             st.markdown("**Traceplots — Modèle post-COVID (2017–2022) · 1 000 itérations thinned**")
@@ -176,7 +176,7 @@ else:
         else:
             no_data_msg("mcmc_chains_postC.csv")
 
-    with tab4:
+    with sub4:
         section_header("Diagnostics de convergence")
         mcmc_post = load_mcmc_summary("postC")
         if mcmc_post is not None and "ESS" in mcmc_post.columns:
