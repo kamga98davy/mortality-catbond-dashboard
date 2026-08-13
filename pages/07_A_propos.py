@@ -157,8 +157,8 @@ with col_facts:
   <div class="about-fact-title">{icon("users", 13, "#D97706")} Contact</div>
   <div class="about-fact-body">
     kamgabopda@gmail.com<br>
-    <a href="https://www.linkedin.com/in/kamgabopda/" target="_blank" rel="noopener noreferrer"
-       style="color:#D97706;text-decoration:none;">linkedin.com/in/kamgabopda</a><br>
+    <a href="https://www.linkedin.com/in/davy-romaric-kamga-bopda-9582a5267/" target="_blank" rel="noopener noreferrer"
+       style="color:#D97706;text-decoration:none;">Profil LinkedIn</a><br>
     Louvain-la-Neuve, Belgique
   </div>
 </div>

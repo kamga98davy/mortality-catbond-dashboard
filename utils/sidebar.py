@@ -61,7 +61,7 @@ def render_sidebar() -> None:
 .li-badge .li-name { color:#E5E7EB;font-size:.72rem;font-weight:600;line-height:1.2; }
 .li-badge .li-handle { color:#6B7280;font-size:.62rem; }
 </style>
-<a class="li-badge" href="https://www.linkedin.com/in/kamgabopda/"
+<a class="li-badge" href="https://www.linkedin.com/in/davy-romaric-kamga-bopda-9582a5267/"
    target="_blank" rel="noopener noreferrer">
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
        viewBox="0 0 24 24" fill="#0A66C2">
@@ -75,7 +75,7 @@ def render_sidebar() -> None:
   </svg>
   <div>
     <div class="li-name">Davy Kamga Bopda</div>
-    <div class="li-handle">linkedin.com/in/kamgabopda</div>
+    <div class="li-handle">Voir le profil LinkedIn</div>
   </div>
 </a>
 """, unsafe_allow_html=True)
