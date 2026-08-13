@@ -27,7 +27,7 @@ if df is None:
     no_data_msg("mortalite_final.xlsx")
     st.stop()
 
-tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+tab_comm, tab_tech = st.tabs(["  L'essentiel  ", "  Analyse technique  "])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:

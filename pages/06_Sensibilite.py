@@ -51,7 +51,7 @@ def _placeholder_bar() -> None:
     st.caption("⚠️ Valeurs indicatives — remplacées par les résultats réels après export R.")
 
 
-tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+tab_comm, tab_tech = st.tabs(["  L'essentiel  ", "  Analyse technique  "])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:
@@ -157,7 +157,7 @@ with tab_tech:
             st.info(
                 "Les données de sensibilité ne sont pas encore générées. "
                 "Lancez `source('export_for_streamlit.R')` dans R pour les produire. "
-                "En attendant, le graphique indicatif dans la vue Commerciale illustre la structure attendue.",
+                "En attendant, le graphique indicatif dans l'onglet L'essentiel illustre la structure attendue.",
                 icon="ℹ️",
             )
         else:

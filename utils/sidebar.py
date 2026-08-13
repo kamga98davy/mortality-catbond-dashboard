@@ -23,8 +23,8 @@ def render_sidebar() -> None:
   <span style='color:#D97706;font-weight:600;font-size:.62rem;
                letter-spacing:.08em;text-transform:uppercase;'>Navigation</span><br>
   Utilisez les onglets<br>
-  <strong style='color:#D1D5DB;'>Commercial</strong> ou
-  <strong style='color:#D1D5DB;'>Technique</strong><br>
+  <strong style='color:#D1D5DB;'>L'essentiel</strong> ou
+  <strong style='color:#D1D5DB;'>Analyse technique</strong><br>
   en haut de chaque page.
 </div>
 """, unsafe_allow_html=True)

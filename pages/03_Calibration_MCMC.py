@@ -16,7 +16,7 @@ render_sidebar()
 
 st.title("Calibration MCMC — Metropolis-Hastings")
 
-tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+tab_comm, tab_tech = st.tabs(["  L'essentiel  ", "  Analyse technique  "])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:

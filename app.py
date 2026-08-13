@@ -81,8 +81,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 tab_comm, tab_tech = st.tabs([
-    "  Vue Commerciale — Investisseurs et Management  ",
-    "  Vue Technique — Jury academique  ",
+    "  L'essentiel — le projet en clair  ",
+    "  Analyse technique — méthodologie et résultats  ",
 ])
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -361,6 +361,7 @@ P_0 = \mathbb{E}^Q\!\left[
         ("activity",    "Monte Carlo",       "Algorithme A.5, courbe P(mu*>s), seuils"),
         ("target",      "Pricing",           "Vecteur MPR zeta, scenarios S1/S2/S3"),
         ("sliders",     "Sensibilite",       "Impact +/-20% de zeta sur P0, elasticite chi"),
+        ("users",       "A propos",          "Parcours et contact de l'auteur"),
     ]
     cols = st.columns(3)
     for i, (ico, title, desc) in enumerate(page_info):

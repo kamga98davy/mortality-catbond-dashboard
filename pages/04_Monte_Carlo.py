@@ -42,7 +42,7 @@ def _dummy_exec():
     st.caption("⚠️ Graphique illustratif — remplacé par les vraies données après export R.")
 
 
-tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
+tab_comm, tab_tech = st.tabs(["  L'essentiel  ", "  Analyse technique  "])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:
