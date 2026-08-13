@@ -9,6 +9,7 @@ from scipy import interpolate
 from utils.styles import inject_css, section_header, insight_box, no_data_msg, warning_box
 from utils.sidebar import render_sidebar
 from utils.data_loader import load_sensitivity, load_mpr
+from utils.icons import icon
 from utils.charts import sensitivity_bar, sensitivity_line
 
 st.set_page_config(page_title="Sensibilité MPR", page_icon="🎯", layout="wide")
@@ -54,12 +55,66 @@ tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:
-    col1, col2 = st.columns([3, 2], gap="large")
+    section_header("A quoi sert cette page ?",
+                   "Tester la robustesse du prix calcule")
 
-    with col1:
-        section_header("Quelle prime de risque impacte le plus le prix du bond ?",
-                       "Variation de ±20% autour de la valeur de référence ζ_S1")
+    st.markdown("""
+<div class="prose" style="margin-bottom:1rem;">
+  Une fois le prix de 6%/an calculé, une question naturelle se pose :
+  <strong style="color:#E5E7EB">ce prix est-il fiable si certaines hypothèses changent légèrement ?</strong><br><br>
+  Pour calibrer le prix sous la mesure risque-neutre Q, il faut estimer 5 "primes de risque" —
+  notées ζ — qui représentent la rémunération exigée par le marché pour chaque source de risque
+  (risque continu de taux, risque continu de mortalité, intensité des chocs, fréquence des chocs).
+  Ces 5 primes sont calibrées sur 10 observations de marché : elles sont donc estimées avec une
+  certaine incertitude.<br><br>
+  Cette page teste : si chaque prime de risque varie de ±20% autour de sa valeur calibrée,
+  le prix du bond change-t-il beaucoup ? Un bond bien construit reste proche de 100 même
+  sous ces perturbations.
+</div>
+""", unsafe_allow_html=True)
 
+    col_intro, col_legend = st.columns([1, 1], gap="large")
+    with col_intro:
+        section_header("Les 5 primes de risque testées")
+        for sym, name, desc in [
+            ("γ₁", "Prime risque de taux (continu)",
+             "Rémunération pour le risque que le taux d'intérêt fluctue de façon continue"),
+            ("γ₂", "Prime risque de mortalité (continu)",
+             "Rémunération pour la volatilité quotidienne de la surmortalité"),
+            ("κ₁", "Prime intensité des chocs (taux)",
+             "Rémunération pour l'ampleur des sauts sur le taux d'intérêt"),
+            ("κ₂", "Prime intensité des chocs (mortalité)",
+             "Rémunération pour l'ampleur des chocs de mortalité — le plus important"),
+            ("χ",  "Prime fréquence des chocs",
+             "Rémunération pour la probabilité qu'un événement extrême survienne"),
+        ]:
+            st.markdown(f"""
+<div style='display:flex;gap:.7rem;margin:.35rem 0;align-items:flex-start;'>
+  <span style='color:#D97706;font-weight:700;font-size:.8rem;min-width:1.5rem;margin-top:.05rem;'>{sym}</span>
+  <div>
+    <span style='color:#E5E7EB;font-weight:600;font-size:.8rem;'>{name}</span><br>
+    <span style='color:#6B7280;font-size:.73rem;'>{desc}</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    with col_legend:
+        section_header("Résultat attendu")
+        insight_box("""
+<strong>Hiérarchie des primes de risque</strong><br><br>
+Sur la base de Li et al. (2023), la prime de fréquence des chocs
+<strong style="color:#E5E7EB">χ</strong> est généralement la plus influente :
+changer la probabilité qu'un événement extrême survienne a le plus grand impact
+sur le prix du bond.<br><br>
+La prime <strong style="color:#E5E7EB">κ₂</strong> (intensité des chocs de mortalité)
+arrive en second. Les primes de risque continu γ₁ et γ₂ ont un impact plus faible —
+elles gouvernent le risque ordinaire, pas les scénarios catastrophes.
+""")
+
+    st.markdown("---")
+    col_chart, col_read = st.columns([3, 1], gap="large")
+    with col_chart:
+        section_header("Amplitude de variation du prix selon la prime perturbée")
         if sens_df is not None:
             summary = (
                 sens_df.groupby("param")["price"]
@@ -68,31 +123,27 @@ with tab_comm:
                 .rename(columns={"price": "amplitude"})
             )
             summary["param_label"] = summary["param"].map(
-                lambda p: PARAM_META.get(p, (p, p, "#F4A926"))[0]
+                lambda p: PARAM_META.get(p, (p, p, "#D97706"))[0]
             )
             st.plotly_chart(sensitivity_bar(summary), use_container_width=True, key="sens_bar_exec")
         else:
             _placeholder_bar()
 
-    with col2:
-        section_header("Lecture du graphique")
+    with col_read:
         st.markdown("""
-Chaque barre montre de **combien le prix P₀ varie** quand
-on modifie une composante de la prime de risque de ±20%.
-
-**Plus la barre est haute, plus ce facteur de risque
-est déterminant pour le prix du bond.**
-""")
-        insight_box("""
-<b>📊 Résultat attendu (analogue Li et al., Figs 5.8–5.10)</b><br><br>
-• <b>χ (fréquence des sauts)</b> est généralement la composante
-  la plus influente — changer la probabilité d'un événement extrême
-  change fondamentalement la valeur du bond.<br><br>
-• <b>κ₂ (saut mortalité)</b> est le second facteur — il capture
-  l'intensité des chocs de mortalité extrêmes.<br><br>
-• <b>γ₁, γ₂ (Browniens)</b> ont un impact plus faible —
-  ils affectent le risque continu, pas les chocs extrêmes.
-""")
+<div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+            border-radius:6px;padding:.9rem 1rem;margin-top:1.5rem;'>
+  <div style='font-weight:600;color:#E5E7EB;font-size:.84rem;margin-bottom:.5rem;'>
+    Lire ce graphique
+  </div>
+  <div style='color:#9CA3AF;font-size:.77rem;line-height:1.7;'>
+    Chaque barre = variation maximale du prix quand une prime de risque varie de &plusmn;20%,
+    toutes les autres primes restant fixes.<br><br>
+    Barre haute = ce paramètre est déterminant.<br>
+    Barre basse = le prix est robuste à ce paramètre.
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ── TECHNIQUE ──────────────────────────────────────────────────────────────────
 with tab_tech:
@@ -103,14 +154,12 @@ with tab_tech:
                        "Sélectionne une composante MPR et explore son impact")
 
         if sens_df is None or mpr is None:
-            no_data_msg("sensitivity.csv / mpr.json")
-            st.markdown("""
-**Pour générer les données de sensibilité, exécute dans R :**
-```r
-source("export_for_streamlit.R")
-```
-L'export inclut les résultats précalculés de la section 5.3 (Rmd).
-""")
+            st.info(
+                "Les données de sensibilité ne sont pas encore générées. "
+                "Lancez `source('export_for_streamlit.R')` dans R pour les produire. "
+                "En attendant, le graphique indicatif dans la vue Commerciale illustre la structure attendue.",
+                icon="ℹ️",
+            )
         else:
             param_choice = st.selectbox(
                 "Composante MPR à explorer",

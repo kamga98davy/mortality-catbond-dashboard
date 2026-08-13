@@ -5,6 +5,7 @@ import pandas as pd
 from utils.styles import inject_css, section_header, insight_box, no_data_msg, warning_box
 from utils.sidebar import render_sidebar
 from utils.data_loader import load_mpr, load_seuils, load_etats
+from utils.icons import icon
 
 st.set_page_config(page_title="Pricing & Scénarios", page_icon="💰", layout="wide")
 inject_css()
@@ -19,89 +20,135 @@ tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:
-    section_header("Les trois scénarios du bond belge",
-                   "Quel prix juste pour le bond selon le contexte de risque ?")
+    section_header("Qu'est-ce que le pricing ?",
+                   "Trouver le coupon d'équilibre entre l'investisseur et l'assureur")
+
+    st.markdown("""
+<div class="prose" style="margin-bottom:1.1rem;">
+  Le pricing répond à une question simple :
+  <strong style="color:#E5E7EB">combien faut-il verser à l'investisseur chaque trimestre
+  pour qu'il accepte de porter le risque de surmortalité catastrophique belge ?</strong><br><br>
+  La réponse n'est pas arbitraire. Elle sort d'une équation d'équilibre : le prix du bond
+  doit être exactement 100 (au pair) quand on actualise tous les flux futurs sous la
+  probabilité risque-neutre Q. La valeur du coupon qui satisfait cette condition est 6%/an.
+</div>
+""", unsafe_allow_html=True)
+
+    col_meca, col_struct = st.columns([1, 1], gap="large")
+
+    with col_meca:
+        section_header("Mécanisme du bond en trois cas")
+        for dot, case, expl in [
+            ("#22C55E", "Scénario normal (probabilité 98,84%)",
+             "La surmortalité reste sous le seuil d'activation. L'investisseur reçoit "
+             "tous ses coupons trimestriels (6%/an) et récupère 100% de son capital à maturité."),
+            ("#D97706", "Activation partielle (entre les deux seuils)",
+             "La surmortalité a dépassé le premier seuil mais pas le second. "
+             "L'investisseur perd une fraction de son capital — proportionnelle à l'intensité du choc."),
+            ("#EF4444", "Perte totale (probabilité 0,74%)",
+             "La surmortalité a dépassé le seuil d'exhaustion. L'investisseur perd 100% de son capital. "
+             "Pour l'assureur, c'est une couverture totale du scénario catastrophe."),
+        ]:
+            st.markdown(f"""
+<div style='display:flex;gap:.8rem;margin:.5rem 0;align-items:flex-start;'>
+  <div style='width:8px;height:8px;border-radius:50%;background:{dot};
+              flex-shrink:0;margin-top:.4rem;'></div>
+  <div>
+    <div style='font-weight:600;color:#E5E7EB;font-size:.84rem;margin-bottom:.2rem;'>{case}</div>
+    <div style='color:#9CA3AF;font-size:.78rem;line-height:1.6;'>{expl}</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    with col_struct:
+        section_header("Structure du bond calibré")
+        p_s1 = mpr.get("P0_S1", 100.0) if mpr else 100.0
+        st.markdown(f"""
+<div style='display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.4rem;'>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#D97706;'>6,0%</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Coupon annuel</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#D97706;'>5,25 ans</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Maturité</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#D97706;'>1,16%</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Prob. activation</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#EF4444;'>0,74%</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Prob. perte totale</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#D97706;'>0,92%</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Perte attendue</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.7rem .9rem;border-left:2px solid #D97706;'>
+    <div style='font-size:1.5rem;font-weight:700;color:#D97706;'>6,5x</div>
+    <div style='color:#6B7280;font-size:.69rem;'>Coupon / perte attendue</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
+    st.markdown("---")
+    section_header("Pourquoi trois scénarios ?",
+                   "Tester la robustesse du prix selon le contexte de risque")
+
+    st.markdown("""
+<div class="prose" style="margin-bottom:.8rem;">
+  Le prix du bond dépend des hypothèses sur la dynamique de mortalité (pre ou post-COVID)
+  et sur les seuils d'activation (calibrés à quelle période ?). Les trois scénarios
+  testent ce que le prix deviendrait si ces hypothèses changeaient.
+</div>
+""", unsafe_allow_html=True)
 
     p_s1 = mpr.get("P0_S1", 100.0) if mpr else 100.0
-    p_s2 = mpr.get("P0_S2", "N/A")   if mpr else "N/A"
     p_s3 = mpr.get("P0_S3", 100.0) if mpr else 100.0
-
     st.markdown(f"""
 <div class="scenario-row">
   <div class="scenario-card">
     <div class="scenario-title">S1 — Scénario de référence</div>
     <div class="scenario-price">P₀ = {p_s1:.1f}</div>
     <div class="scenario-desc">
-      <b>Dynamiques post-COVID + Seuils post-COVID</b><br>
-      Le bond est <em>au pair</em> : le coupon de 6 % compense exactement le
-      risque de surmortalité post-pandémique. C'est le prix juste d'émission
-      pour un investisseur conscient du nouveau régime de risque.
+      Dynamiques post-COVID + seuils post-COVID.<br>
+      Le bond est au pair : le coupon de 6% est le prix juste.
+      C'est le scénario recommandé pour une émission aujourd'hui.
     </div>
   </div>
   <div class="scenario-card s2">
-    <div class="scenario-title">S2 — Monde pré-COVID</div>
+    <div class="scenario-title">S2 — Monde sans COVID</div>
     <div class="scenario-price s2">P₀ &gt; 100</div>
     <div class="scenario-desc">
-      <b>Dynamiques pré-COVID + Seuils pré-COVID</b><br>
-      Counterfactuel : sans la pandémie, le même coupon de 6 % serait
-      généreux pour le risque réel — le bond se négocierait <em>au-dessus du pair</em>.
-      La prime de risque demandée dépasserait la réalité pré-COVID.
+      Dynamiques pré-COVID + seuils pré-COVID.<br>
+      Si la pandémie n'avait pas eu lieu, 6%/an serait trop généreux
+      — le bond vaudrait plus que 100. Sert de référence contrefactuelle.
     </div>
   </div>
   <div class="scenario-card s3">
-    <div class="scenario-title">S3 — Désalignement post-COVID</div>
+    <div class="scenario-title">S3 — Seuils obsolètes</div>
     <div class="scenario-price s3">P₀ = {p_s3:.1f}</div>
     <div class="scenario-desc">
-      <b>Dynamiques post-COVID + Seuils pré-COVID</b><br>
-      Scénario de risque sous-estimé : si l'émetteur utilisait des seuils
-      obsolètes (pré-COVID) avec une dynamique post-pandémique, le vecteur
-      MPR ζ_S3 serait différent de ζ_S1, signalant un bond <em>mal calibré</em>.
+      Dynamiques post-COVID + seuils pré-COVID.<br>
+      L'émetteur utilise des seuils non recalibrés depuis 2019.
+      L'investisseur porte plus de risque qu'il ne croit : un signal d'alerte.
     </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    col1, col2 = st.columns([2, 3])
-    with col1:
-        section_header("Primes de risque MPR ζ",
-                       "Li et al. (2023) vs Belgique — Scénario S1")
-        li_et_al = {"γ₁": 0.100, "γ₂": 0.212, "κ₁": 0.178, "κ₂": 0.253, "χ": 0.021}
-        if mpr:
-            be_vals = {
-                "γ₁": mpr.get("gamma1"), "γ₂": mpr.get("gamma2"),
-                "κ₁": mpr.get("kappa1"), "κ₂": mpr.get("kappa2"),
-                "χ": mpr.get("chi"),
-            }
-            rows = []
-            for k in li_et_al:
-                li_v = li_et_al[k]
-                be_v = be_vals.get(k)
-                rows.append({
-                    "Composante": k, "Li et al. (S1)": f"{li_v:.3f}",
-                    "Belgique": f"{be_v:.3f}" if be_v is not None else "—",
-                    "Δ": f"{be_v - li_v:+.3f}" if be_v is not None else "—",
-                })
-            st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
-        else:
-            st.dataframe(pd.DataFrame({
-                "Composante": list(li_et_al), "Li et al. (S1)": [f"{v:.3f}" for v in li_et_al.values()],
-                "Belgique": ["—"] * 5,
-            }), hide_index=True)
-            no_data_msg("mpr.json")
-
-    with col2:
-        section_header("Recommandations stratégiques")
-        insight_box("""
-<b>💡 Message clé pour les assureurs belges</b><br><br>
-1. <b>Le risque post-COVID est durablement plus élevé</b> — les paramètres
-   dynamiques ont fondamentalement changé. Les seuils doivent être recalibrés
-   régulièrement avec les nouvelles données.<br><br>
-2. <b>Le coupon de 6 % est le spread juste</b> dans le contexte actuel (S1).
-   Un spread inférieur sous-rémunèrerait les investisseurs pour le risque réel.<br><br>
-3. <b>Le scénario S3 est un signal d'alerte</b> : si les seuils n'ont pas été
-   mis à jour depuis 2019, l'émetteur transfère implicitement plus de risque
-   qu'il ne le croit — le vecteur ζ_S3 révèle cette asymétrie.
+    insight_box("""
+<strong>Le message operationnel du scenario S3</strong><br>
+Si un assureur belge n'a pas mis à jour ses seuils de mortalité depuis 2019, il est
+structurellement en situation S3. Son CAT bond sous-tarifie le risque réel.
+Ce travail fournit la méthodologie pour détecter et corriger cet écart.
 """)
 
 # ── TECHNIQUE ──────────────────────────────────────────────────────────────────

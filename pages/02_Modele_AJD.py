@@ -3,6 +3,7 @@ import streamlit as st
 
 from utils.styles import inject_css, section_header, insight_box
 from utils.sidebar import render_sidebar
+from utils.icons import icon
 from utils.data_loader import load_params_postC, load_params_preC, corr_instantanee
 
 st.set_page_config(page_title="Modèle AJD", page_icon="🔬", layout="wide")
@@ -19,14 +20,14 @@ with tab_comm:
 
     with col1:
         section_header("Qu'est-ce qu'un modèle AJD ?",
-                       "Affine Jump-Diffusion — La physique du risque extrême")
+                       "Affine Jump-Diffusion — modéliser le risque extrême de mortalité")
         st.markdown("""
 Le **modèle AJD bivarié** décrit simultanément l'évolution de deux variables :
 
 - **rₜ** — le taux d'intérêt (EURIBOR 3M)
 - **μₜ** — la surmortalité hebdomadaire belge
 
-Ces deux variables sont liées car une pandémie peut simultanément :
+Ces deux variables sont liées car une pandémie peut simultanément
 faire monter la mortalité **et** perturber les marchés financiers.
 
 Le modèle comporte **trois sources de risque** :
@@ -35,14 +36,14 @@ Le modèle comporte **trois sources de risque** :
 |:---|:---|:---|
 | **Diffusion brownienne** | Fluctuations normales et continues | Risque ordinaire quotidien |
 | **Sauts communs** | Chocs soudains, simultanés sur les deux variables | COVID, crises |
-| **Corrélation** | Les deux variables bougent ensemble | Dépendance entre risque et taux |
+| **Corrélation** | Les deux variables bougent ensemble | Dépendance risque-taux |
 """)
 
         insight_box("""
-<b>💡 Intuition clé</b><br>
+<strong>Intuition clé</strong><br>
 Sans COVID, le risque de mortalité est bien séparé du risque financier.
 Avec COVID, les deux explosent simultanément — c'est précisément ce que
-le terme de saut (<em>jump</em>) capture.
+le terme de saut capture.
 La fréquence des sauts λ a fortement augmenté dans les estimations post-COVID.
 """)
 

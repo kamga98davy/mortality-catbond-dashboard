@@ -4,6 +4,7 @@ import pandas as pd
 
 from utils.styles import inject_css, section_header, insight_box, no_data_msg
 from utils.sidebar import render_sidebar
+from utils.icons import icon
 from utils.data_loader import (
     load_mortality, load_interest_rate, compute_stats,
 )
@@ -30,48 +31,76 @@ tab_comm, tab_tech = st.tabs(["👔  Vue Commerciale", "🔬  Vue Technique"])
 
 # ── COMMERCIAL ─────────────────────────────────────────────────────────────────
 with tab_comm:
-    section_header("La mortalité belge en chiffres",
-                   "Évolution hebdomadaire des décès 2013–2024")
-
-    st.plotly_chart(deaths_chart(df), use_container_width=True, key="d1_deaths_exec")
-
     pre  = df[df["periode"] == "Pré-COVID"]
     post = df[df["periode"] == "Post-COVID"]
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Décès/sem. moyen (pré-COVID)",
-                f"{pre['deces'].mean():.0f}", help="Semaines 2013–2019")
-    col2.metric("Décès/sem. moyen (post-COVID)",
-                f"{post['deces'].mean():.0f}",
-                delta=f"+{post['deces'].mean() - pre['deces'].mean():.0f}")
-    col3.metric("Pic COVID (max hebdo)",
-                f"{df['deces'].max():,.0f}", help="Printemps 2020")
-    col4.metric("Semaines avec surmortalité > 0",
-                f"{(df['mu_t'] > 0).mean() * 100:.1f}%")
+    section_header("Pourquoi ces données ?",
+                   "Tout le modèle repose sur deux séries : la mortalité et les taux d'intérêt")
+
+    st.markdown(f"""
+<div class="prose" style="margin-bottom:1rem;">
+  Pour tarifer un CAT bond sur la mortalité, il faut répondre à deux questions :
+  <strong style="color:#E5E7EB">"Que s'est-il passé ?"</strong> (les décès observés) et
+  <strong style="color:#E5E7EB">"Que devait-il se passer ?"</strong> (les décès attendus selon un modèle statistique).
+  La différence entre les deux — la <em>surmortalité</em> — est la variable centrale du modèle.
+  Les taux d'intérêt (EURIBOR 3M) servent à actualiser les flux futurs du bond.
+</div>
+""", unsafe_allow_html=True)
+
+    col_chart, col_key = st.columns([3, 1], gap="large")
+    with col_chart:
+        st.plotly_chart(deaths_chart(df), use_container_width=True, key="d1_deaths_exec")
+    with col_key:
+        st.markdown(f"""
+<div style='display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem;'>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.75rem .9rem;'>
+    <div style='font-size:1.4rem;font-weight:700;color:#D97706;'>
+      {pre['deces'].mean():.0f}
+    </div>
+    <div style='color:#6B7280;font-size:.71rem;'>Décès/sem. (pré-COVID)</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.75rem .9rem;border-left:2px solid #EF4444;'>
+    <div style='font-size:1.4rem;font-weight:700;color:#EF4444;'>
+      {post['deces'].mean():.0f}
+    </div>
+    <div style='color:#6B7280;font-size:.71rem;'>Décès/sem. (post-COVID)</div>
+  </div>
+  <div style='background:#1A1D27;border:1px solid rgba(255,255,255,.07);
+              border-radius:6px;padding:.75rem .9rem;border-left:2px solid #D97706;'>
+    <div style='font-size:1.4rem;font-weight:700;color:#D97706;'>
+      {df["deces"].max():,.0f}
+    </div>
+    <div style='color:#6B7280;font-size:.71rem;'>Pic COVID (semaine la plus mortelle)</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     st.markdown("---")
-    section_header("Impact COVID-19 sur la surmortalité",
-                   "μₜ = (décès observés − décès attendus) / population × 100")
+    section_header("La surmortalité : mesurer le choc COVID")
+
+    st.markdown("""
+<div class="prose" style="margin-bottom:.8rem;">
+  La surmortalité hebdomadaire <strong style="color:#E5E7EB">μₜ</strong> est calculée
+  en soustrayant les décès attendus (GLM Poisson) des décès observés, rapporté à la population.
+  C'est la variable que le CAT bond protège : si elle dépasse un seuil prédéfini pendant
+  la durée du bond, l'investisseur perd une partie de son capital.
+</div>
+""", unsafe_allow_html=True)
 
     col1, col2 = st.columns([2, 1])
     with col1:
         st.plotly_chart(excess_mortality_chart(df), use_container_width=True, key="d1_mu_exec")
     with col2:
-        insight_box("""
-<b>📌 Lecture du graphique</b><br><br>
-<b>μₜ > 0</b> = plus de décès qu'attendu → surmortalité<br>
-<b>μₜ < 0</b> = moins de décès qu'attendu<br><br>
-Les pics de mars–mai 2020 et automne 2020 correspondent
-aux premières vagues COVID, avec une surmortalité sans
-précédent dans la période observée.
-""")
-        st.markdown("##### Comparaison pré/post-COVID")
-        st.markdown(f"""
-| | Pré-COVID | Post-COVID |
-|---|---:|---:|
-| Moyenne μₜ | `{pre['mu_t'].mean():.4f}` | `{post['mu_t'].mean():.4f}` |
-| Écart-type | `{pre['mu_t'].std():.4f}` | `{post['mu_t'].std():.4f}` |
-| Max μₜ | `{pre['mu_t'].max():.4f}` | `{post['mu_t'].max():.4f}` |
+        insight_box(f"""
+<strong>Comment lire ce graphique</strong><br><br>
+<strong style="color:#E5E7EB">μₜ &gt; 0</strong> : plus de décès que prévu.<br>
+Les barres hautes de mars-mai 2020 représentent les premières vagues COVID.<br><br>
+<strong>Écart-type avant/après :</strong><br>
+Pré-COVID : {pre['mu_t'].std():.4f}<br>
+Post-COVID : {post['mu_t'].std():.4f}<br><br>
+La volatilité de μₜ a nettement augmenté après 2020, justifiant une recalibration du modèle.
 """)
 
 # ── TECHNIQUE ──────────────────────────────────────────────────────────────────

@@ -45,15 +45,13 @@ belges observées, sans supposer de distribution a priori.
     with col2:
         section_header("Résultat clé — Impact de la pandémie")
         insight_box("""
-<b>🔴 Avant la pandémie (2017–2019)</b><br>
-λ ≈ faible → sauts rares<br>
-σ₂ ≈ faible → μₜ peu volatile<br><br>
-<b>🟡 Après la pandémie (2017–2022)</b><br>
-λ augmente → sauts plus fréquents<br>
-σ₂ augmente → μₜ plus volatile<br>
-ν₂ augmente → chocs de mortalité plus intenses<br><br>
-➡ La pandémie a <b>fondamentalement changé</b> la dynamique
-de mortalité belge. Le modèle le capte clairement.
+<strong>Avant la pandémie (2017–2019)</strong><br>
+λ faible : sauts rares — σ₂ faible : μₜ peu volatile<br><br>
+<strong>Après la pandémie (2017–2022)</strong><br>
+λ augmente : sauts plus fréquents<br>
+σ₂ augmente : μₜ plus volatile<br>
+ν₂ augmente : chocs de mortalité plus intenses<br><br>
+La pandémie a fondamentalement changé la dynamique de mortalité belge. Le modèle le capte clairement.
 """)
 
     st.markdown("---")
