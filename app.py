@@ -17,14 +17,35 @@ render_sidebar()
 # ── Styles specifiques a cette page ──────────────────────────────────────────
 st.markdown("""
 <style>
-.page-label {
-    font-size:.67rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-    color:#D97706;margin-bottom:.5rem;
+.hero {
+    position:relative;
+    background:linear-gradient(135deg, #1A1D27 0%, #14161f 55%, #1a1a22 100%);
+    border:1px solid rgba(255,255,255,.07);
+    border-left:3px solid #D97706;
+    border-radius:10px;
+    padding:2rem 2.4rem 1.9rem 2.4rem;
+    margin-bottom:1.4rem;
+    overflow:hidden;
 }
-.page-title {
-    font-size:1.85rem;font-weight:700;color:#E5E7EB;line-height:1.25;margin-bottom:.4rem;
+.hero::after {
+    content:"";
+    position:absolute; top:-60px; right:-60px;
+    width:260px; height:260px;
+    background:radial-gradient(circle, rgba(217,119,6,.09) 0%, transparent 70%);
+    pointer-events:none;
 }
-.page-title em { color:#D97706; font-style:normal; }
+.hero-label {
+    font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:#D97706;margin-bottom:.7rem;
+}
+.hero-hook {
+    font-size:2rem;font-weight:700;color:#E5E7EB;line-height:1.25;
+    margin:0 0 .6rem 0;max-width:720px;
+}
+.hero-hook em { color:#D97706;font-style:normal; }
+.hero-sub {
+    color:#9CA3AF;font-size:.92rem;line-height:1.65;max-width:680px;margin:0;
+}
 .problem-block {
     background:#1A1D27;border:1px solid rgba(255,255,255,.07);
     border-left:3px solid #EF4444;border-radius:6px;
@@ -71,13 +92,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="page-label">Memoire de fin d\'etudes · Actuariat · UCL · 2024</div>',
-            unsafe_allow_html=True)
 st.markdown("""
-<h1 class="page-title">
-  Tarification du risque de surmortalite catastrophique<br>
-  <em>Application a la Belgique post-COVID</em>
-</h1>
+<div class="hero">
+  <div class="hero-label">Memoire de fin d'etudes · Actuariat · UCLouvain · 2024–2026</div>
+  <h1 class="hero-hook">
+    L'imprevisible a un prix.<br><em>Ce travail le calcule.</em>
+  </h1>
+  <p class="hero-sub">
+    Tarification du risque de surmortalite catastrophique — modele AJD bivarie
+    et 100&nbsp;000 simulations Monte Carlo, appliques a la Belgique post-COVID.
+  </p>
+</div>
 """, unsafe_allow_html=True)
 
 tab_comm, tab_tech = st.tabs([

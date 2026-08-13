@@ -74,6 +74,12 @@ footer    { visibility: hidden !important; }
     border-radius: 8px;
     padding: .9rem 1rem;
     text-align: center;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.45), 0 2px 8px rgba(217,119,6,.10);
+    border-color: rgba(217,119,6,.35);
 }
 .kpi-label {
     color: #6B7280; font-size: .67rem; font-weight: 600;
@@ -126,6 +132,11 @@ footer    { visibility: hidden !important; }
     border-radius: 8px;
     padding: 1.15rem 1.2rem;
     border-top: 3px solid #D97706;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.scenario-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,0,0,.45);
 }
 .scenario-card.s2 { border-top-color: #0D9488; }
 .scenario-card.s3 { border-top-color: #EF4444; }
@@ -146,6 +157,11 @@ footer    { visibility: hidden !important; }
     border: 1px solid rgba(255,255,255,.07);
     border-radius: 6px;
     padding: .9rem 1rem;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.4);
 }
 .step-num {
     font-size: .65rem; font-weight: 700; letter-spacing: .08em;
@@ -184,6 +200,23 @@ div[data-testid="stMetric"] {
     background: #1A1D27; border-radius: 8px;
     padding: .75rem 1rem;
     border: 1px solid rgba(255,255,255,.07);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.4);
+    border-color: rgba(217,119,6,.3);
+}
+
+/* Cartes definies dans les pages (accueil, a-propos) — meme comportement */
+.nav-card, .audience-card, .about-fact,
+.problem-block, .solution-block, .result-block {
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.nav-card:hover, .audience-card:hover, .about-fact:hover,
+.problem-block:hover, .solution-block:hover, .result-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.4);
 }
 div[data-testid="stTabs"] button[data-baseweb="tab"] {
     font-size: .9rem !important;
